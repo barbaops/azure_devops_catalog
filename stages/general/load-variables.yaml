@@ -1,0 +1,15 @@
+steps:
+  - script: |
+      lambda_vars=$(cat $(configFilePath) | grep '$(VAR.SUFIX).' | sed 's/: /=/g')
+
+      parameter_overrides=""
+
+      for var in $lambda_vars; do
+        new_var_name=$(echo "${var%=*}" | sed 's/$(VAR.SUFIX)\.//')
+        new_var_value=${var#*=}
+        echo "##vso[task.setvariable variable=$new_var_name]$new_var_value"
+
+        parameter_overrides="$parameter_overrides $new_var_name=$new_var_value"
+      done
+
+      echo "##vso[task.setvariable variable=FullVariables]$parameter_overrides"
